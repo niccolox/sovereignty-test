@@ -14,9 +14,11 @@ existing assessment, not instead of it.
 
 ## Status
 
-**Built, not published.** Specification v1 and the scorer exist and are
-verified. The repository is private until v1 ships; GitHub Pages needs it
-public, so publishing and the visibility flip happen together, deliberately.
+**Published.** Specification v1 and the scorer are live at
+**<https://niccolox.github.io/sovereignty-test/>**
+
+Verified against the live deployment, not just the build: 29 scoring tests and
+15 browser smoke tests, the latter run against the deployed URL.
 
 ## What is here
 
@@ -38,7 +40,10 @@ public, so publishing and the visibility flip happen together, deliberately.
 bun install
 bun run check     # scoring tests, generated-file checks, build, page-weight budget
 bun run build     # assembles _site/
-bunx playwright test   # browser smoke tests (CI; needs a working Chromium)
+bunx playwright test   # browser smoke tests against the local build
+
+# Verify a deployment rather than a build:
+SMOKE_BASE_URL=https://niccolox.github.io/sovereignty-test/ bunx playwright test
 ```
 
 The page weighs 56.6 KB against a 100 KB budget that CI enforces: 44.6 KB of

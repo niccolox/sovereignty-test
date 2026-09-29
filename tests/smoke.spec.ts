@@ -9,7 +9,7 @@ const answerAll = async (page: import("@playwright/test").Page, states: AnswerSt
 };
 
 test("renders seven questions with their labels", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   await expect(page.locator("fieldset.q")).toHaveCount(7);
   for (const q of QUESTIONS) {
     await expect(page.locator(".q-label", { hasText: q.label })).toBeVisible();
@@ -18,7 +18,7 @@ test("renders seven questions with their labels", async ({ page }) => {
 });
 
 test("score is live from load at 0 of 7 with seven unknown", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   // Before any interaction at all.
   await expect(page.locator("#score-num")).toHaveText("0");
   await expect(page.locator("#score-of")).toHaveText("of 7");
@@ -29,7 +29,7 @@ test("score is live from load at 0 of 7 with seven unknown", async ({ page }) =>
 });
 
 test("all four answer states are selectable", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   for (const state of ["yes", "partly", "no", "unknown"] as AnswerState[]) {
     const input = page.locator(`#q1-${state}`);
     await input.check({ force: true });
@@ -47,7 +47,7 @@ const CASES: Array<[string, AnswerState[]]> = [
 
 for (const [name, states] of CASES) {
   test(`displayed score matches the module for ${name}`, async ({ page }) => {
-    await page.goto("/");
+    await page.goto("./");
     await answerAll(page, states);
     const expected = score(states);
     await expect(page.locator("#score-num")).toHaveText(String(expected.total));
@@ -57,7 +57,7 @@ for (const [name, states] of CASES) {
 }
 
 test("gap list renders in rank order", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   const states: AnswerState[] = Array(7).fill("partly");
   await answerAll(page, states);
   const expected = score(states).gaps.map((g) => g.question.label);
@@ -66,7 +66,7 @@ test("gap list renders in rank order", async ({ page }) => {
 });
 
 test("all-yes and all-unknown do not render the same empty result", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   await answerAll(page, Array(7).fill("yes"));
   const yesSummary = await page.locator("#result-summary").textContent();
   await expect(page.locator("#unknowns")).toBeHidden();
@@ -80,12 +80,12 @@ test("all-yes and all-unknown do not render the same empty result", async ({ pag
 });
 
 test("version stamp identifies the spec version", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   await expect(page.locator("#stamp")).toHaveText(/spec v1 · questions\.v1\.json/);
 });
 
 test("remediation renders as text, never as markup", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   await answerAll(page, Array(7).fill("no"));
   const html = await page.locator("ol.gaps").innerHTML();
   expect(html).not.toContain("<script");
@@ -94,7 +94,7 @@ test("remediation renders as text, never as markup", async ({ page }) => {
 });
 
 test("keyboard: seven tab stops reach every question group", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("./");
   const ids: string[] = [];
   for (let i = 0; i < 7; i++) {
     await page.keyboard.press("Tab");
@@ -108,7 +108,7 @@ test("keyboard: seven tab stops reach every question group", async ({ page }) =>
 
 test("no horizontal scroll at 320px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
-  await page.goto("/");
+  await page.goto("./");
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
@@ -117,7 +117,7 @@ test("no horizontal scroll at 320px", async ({ page }) => {
 
 test("answer controls meet the 44px target floor", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 });
-  await page.goto("/");
+  await page.goto("./");
   const labels = page.locator(".ans");
   const n = await labels.count();
   expect(n).toBe(28);
