@@ -24,6 +24,10 @@
   caret-color:var(--ink);
 }
 *{box-sizing:border-box}
+/* The hidden attribute must beat author display rules. Without this,
+   `.unknowns{display:flex}` overrides the UA stylesheet and the block renders
+   even when hidden. Caught by the smoke tests, not by the unit tests. */
+[hidden]{display:none!important}
 ::selection{background:var(--ink);color:var(--bg)}
 html{scrollbar-color:var(--line) var(--bg)}
 body{

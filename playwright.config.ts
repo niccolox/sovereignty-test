@@ -13,7 +13,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
   webServer: {
-    command: "bunx --bun serve _site -l 4173 --no-clipboard",
+    command: "bun run scripts/serve.ts",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
