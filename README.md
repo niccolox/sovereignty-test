@@ -14,20 +14,35 @@ existing assessment, not instead of it.
 
 ## Status
 
-**Not published yet.** This repository is reserved. Version 1 of the
-specification and the scorer are not written.
+**Built, not published.** Specification v1 and the scorer exist and are
+verified. The repository is private until v1 ships; GitHub Pages needs it
+public, so publishing and the visibility flip happen together, deliberately.
 
-## What will be here
+## What is here
 
-- `spec/v1/` — the seven questions, their clarifiers, their short labels, and
-  a remediation entry with a cost rank for each. Versioned and citable. Once a
-  version is published its path is frozen; corrections ship as a new version.
-- `index.html` — a scorer. Seven questions, four answers each (yes / partly /
-  no / unknown), a score out of 7 with its arithmetic shown, and every gap
-  ranked by how many points it recovers.
-- `data/questions.v1.json` — the spec as data, emitted from the same source
-  the page compiles in, so an independent implementation needs no JavaScript
-  from here.
+- `spec/v1/index.md` — the specification. Seven questions, their labels,
+  clarifiers, remediations and cost ranks, the scoring rules, and the stated
+  limitations. Frozen once published; corrections ship as a new version.
+- `src/questions.ts` — the single source of truth. The spec prose, the
+  published JSON and the page all derive from it, and CI fails if any of them
+  drift apart.
+- `src/scoring.ts` — the scoring. The module the page ships is the module the
+  tests import; there is no second copy of the arithmetic.
+- `data/questions.v1.json` — the machine-readable specification, generated
+  from the source. Implement the test without reading our TypeScript.
+- `index.html` + `src/main.ts` — the scorer.
+
+## Running it
+
+```sh
+bun install
+bun run check     # scoring tests, generated-file checks, build, page-weight budget
+bun run build     # assembles _site/
+bunx playwright test   # browser smoke tests (CI; needs a working Chromium)
+```
+
+The page weighs 56.6 KB against a 100 KB budget that CI enforces: 44.6 KB of
+that is the self-hosted font, 6.5 KB the HTML and CSS, 5.5 KB the script.
 
 ## How it will work
 
@@ -41,6 +56,8 @@ audited one.
 
 ## Licence
 
+- **Font** (`fonts/`): IBM Plex Sans, [SIL Open Font License 1.1](fonts/SOURCE.md).
+  Self-hosted so the page makes no third-party request.
 - **Specification text** (`spec/`, `data/`, and the questions themselves):
   [CC BY 4.0](LICENSE-SPEC). Use it, adapt it, implement it. Attribution
   required.

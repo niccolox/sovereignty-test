@@ -1,0 +1,67 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the frozen-spec guard needs history
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      # The arithmetic, with no browser involved. This is the part that must
+      # be right, and it is the same module the page ships.
+      - name: Scoring tests
+        run: bun run test
+
+      # The published JSON is generated, never hand-edited.
+      - name: Published JSON matches the source
+        run: bun run emit:check
+
+      # The spec prose restates the same data; nothing else stops it drifting.
+      - name: Specification prose matches the source
+        run: bun run scripts/check-spec.ts
+
+      # A published version may already have been cited.
+      - name: No already-published spec version was modified
+        run: bun run scripts/check-frozen-spec.ts origin/${{ github.event.repository.default_branch }}
+
+      # Builds _site/ and fails above the page-weight budget.
+      - name: Build and enforce the page-weight budget
+        run: bun run build
+
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      - name: Smoke tests
+        run: bunx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: site
+          path: _site
+          retention-days: 7
+
+  # Deployment is deliberately not wired up yet. GitHub Pages requires a public
+  # repository on the free plan, and this repository is private until spec v1
+  # ships. Enabling Pages and adding the deploy job is a single, deliberate
+  # step taken at that point, not something that happens by accident on a push.

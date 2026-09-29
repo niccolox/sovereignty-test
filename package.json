@@ -1,0 +1,19 @@
+{
+  "name": "sovereignty-test",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Seven questions about whether your organisation could replace its AI vendors.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "emit": "bun run scripts/emit-json.ts",
+    "emit:check": "bun run scripts/emit-json.ts --check",
+    "build": "bun run scripts/build.ts",
+    "test": "bun test src",
+    "smoke": "playwright test",
+    "check": "bun test src && bun run emit:check && bun run scripts/check-spec.ts && bun run build"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
