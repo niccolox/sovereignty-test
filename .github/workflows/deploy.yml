@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: build-${{ github.ref }}
@@ -54,6 +56,11 @@ jobs:
       - name: Smoke tests
         run: bunx playwright test
 
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/master'
+        with:
+          path: _site
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -61,7 +68,15 @@ jobs:
           path: _site
           retention-days: 7
 
-  # Deployment is deliberately not wired up yet. GitHub Pages requires a public
-  # repository on the free plan, and this repository is private until spec v1
-  # ships. Enabling Pages and adding the deploy job is a single, deliberate
-  # step taken at that point, not something that happens by accident on a push.
+  # Deploys only from master, and only after every check above has passed.
+  # A red build cannot publish.
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

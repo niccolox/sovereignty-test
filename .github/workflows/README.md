@@ -1,14 +1,10 @@
 # Workflows
 
-`deploy.yml` currently builds and verifies only. **It does not deploy.**
+`deploy.yml` verifies, then deploys to GitHub Pages.
 
-Deployment to GitHub Pages needs two things that are deliberately not done yet:
+**Deployment is gated on every check passing.** The `deploy` job `needs: verify`,
+so a failing scoring test, a drifted published JSON, drifted specification
+prose, a modified already-published spec version, a page over the weight
+budget, or a failing smoke test all stop publication. A red build cannot ship.
 
-1. **The repository must be public.** Pages requires it on the free plan, and
-   this repository stays private until specification v1 is ready to publish.
-2. **Pages must be enabled** with `actions/deploy-pages`, plus `pages: write`
-   and `id-token: write` permissions and a `github-pages` environment.
-
-Both happen together, once, as a deliberate act. Until then every push is
-verified and the built site is kept as a build artifact so it can be inspected
-without being published.
+It deploys only from `master`. Pull requests are verified and never published.
